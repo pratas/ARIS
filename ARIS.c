@@ -619,7 +619,7 @@ void EncodeHeader(RCLASS *C, FILE *F){
 void Compress(RCLASS *C, char *fn){
   FILE     *IN  = Fopen(fn, "r"), *OUT = Fopen(Cat(fn, ".jv"), "w");
   uint64_t i = 0, mSize = MAX_BUF, pos = 0;
-  uint32_t m, n, k; 
+  uint32_t m, n; 
   uint8_t  t[NSYM], *buf = (uint8_t *) Calloc(mSize, sizeof(uint8_t)), 
            *cache = (uint8_t *) Calloc(SCACHE+1, sizeof(uint8_t)), sym = 0;
   PMODEL   *MX = CreatePM(NSYM);
