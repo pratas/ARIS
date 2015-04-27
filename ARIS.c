@@ -617,7 +617,7 @@ void EncodeHeader(RCLASS *C, FILE *F){
 // COMPRESSION
 //
 void Compress(RCLASS *C, char *fn){
-  FILE     *IN  = Fopen(fn, "r"), *OUT = Fopen(Cat(fn, ".jv"), "w");
+  FILE     *IN  = Fopen(fn, "r"), *OUT = Fopen(Cat(fn, ".ar"), "w");
   uint64_t i = 0, mSize = MAX_BUF, pos = 0;
   uint32_t m, n; 
   uint8_t  t[NSYM], *buf = (uint8_t *) Calloc(mSize, sizeof(uint8_t)), 
@@ -676,7 +676,7 @@ void Compress(RCLASS *C, char *fn){
 // DECOMPRESSION
 //
 void Decompress(char *fn){
-  FILE     *IN  = Fopen(fn, "r"), *OUT = Fopen(Cat(fn, ".jd"), "w");
+  FILE     *IN  = Fopen(fn, "r"), *OUT = Fopen(Cat(fn, ".ad"), "w");
   uint64_t i = 0, mSize = MAX_BUF, pos = 0;
   uint32_t m, n;
   uint8_t  *buf = (uint8_t *) Calloc(mSize, sizeof(uint8_t)), gun[NSYM],
