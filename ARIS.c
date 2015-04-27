@@ -698,7 +698,7 @@ void Decompress(char *fn){
       ComputeMixture(C, MX, buf);
 
       if(C->nRM == 0)
-        sym = fgetc(EXTRA);
+        sym = S2N(fgetc(EXTRA));
       else
         sym = ArithDecodeSymbol(NSYM, (int *) MX->freqs, (int) MX->sum, IN);
 
