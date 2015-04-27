@@ -629,7 +629,7 @@ void Compress(RCLASS *C, char *fn){
   start_encode();
   EncodeHeader(C, OUT);
 
-  FILE *EXTRA = Fopen("EXTRA", "w");
+  FILE *EXTRA = Fopen("EXTRA.is", "w");
 
   while((m = fread(t, sizeof(uint8_t), NSYM, IN)) == NSYM){
 
@@ -643,11 +643,10 @@ void Compress(RCLASS *C, char *fn){
       RenormWeights(C);
       ComputeMixture(C, MX, buf);
 
-      if(C->nRM != 0)
-        ArithEncodeSymbol(sym, (int *)(MX->freqs), (int) MX->sum, OUT);
-      else
+      if(C->nRM == 0)
         fprintf(EXTRA, "%c", t[n]);
-
+      else
+        ArithEncodeSymbol(sym, (int *)(MX->freqs), (int) MX->sum, OUT);
 
       UpdateWeights(C, buf, sym);
       ShiftRBuf(cache, SCACHE, sym);  // STORE THE LAST SCACHE BASES & SHIFT 1
@@ -670,6 +669,7 @@ void Compress(RCLASS *C, char *fn){
   doneoutputtingbits(OUT);
   fclose(IN);
   fclose(OUT);
+  fclose(EXTRA);
   }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -686,6 +686,8 @@ void Decompress(char *fn){
   startinputtingbits();
   start_decode(IN);
   RCLASS *C = DecodeHeader(IN);
+  
+  FILE *EXTRA = Fopen("EXTRA.is", "r");
 
   while(i < C->size){                         // NOT absolute size (CHAR SIZE)
     for(n = 0 ; n < NSYM ; ++n){
@@ -694,7 +696,12 @@ void Decompress(char *fn){
       InsertKmerPos(C, C->P->idx, pos++);                    // pos = (i<<2)+n
       RenormWeights(C);
       ComputeMixture(C, MX, buf);
-      sym = ArithDecodeSymbol(NSYM, (int *) MX->freqs, (int) MX->sum, IN);
+
+      if(C->nRM == 0)
+        sym = fgetc(EXTRA);
+      else
+        sym = ArithDecodeSymbol(NSYM, (int *) MX->freqs, (int) MX->sum, IN);
+
       if(n == 0) buf[i] = sym<<6 ; else buf[i] |= (sym<<((3-n)<<1));
       gun[n] = N2S(sym);
       UpdateWeights(C, buf, sym);
@@ -715,6 +722,7 @@ void Decompress(char *fn){
   doneinputtingbits();
   fclose(IN);
   fclose(OUT);
+  fclose(EXTRA);
   }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -756,10 +764,12 @@ int main(int argc, char **argv){
     fprintf(stderr, "Compressing ...\n"); 
     C = CreateRC(m, a, b, l, c, g, i);
     Compress(C, argv[argc-1]);
+    fprintf(stderr, "Done!                                              \n"); 
     }
   else{
     fprintf(stderr, "Decompressing ...\n"); 
     Decompress(argv[argc-1]);
+    fprintf(stderr, "Done!                                              \n"); 
     }
  
   fprintf(stderr, "ARIS complete!\n");
